@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --primary-color: #004D40; /* Dark Teal */
@@ -39,6 +40,7 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             overflow: hidden;
+            position: relative;
         }
 
         header {
@@ -147,7 +149,8 @@
         }
 
         .control-group input,
-        .control-group select {
+        .control-group select,
+        .control-group textarea {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #dce1e5;
@@ -155,6 +158,7 @@
             font-size: 16px;
             transition: all 0.3s;
             box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
         }
 
         .btn {
@@ -164,7 +168,6 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -172,10 +175,11 @@
             color: var(--white);
             width: 100%;
             justify-content: center;
+            transition: all 0.3s ease;
         }
         .btn:hover {
-            opacity: 0.9;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
         }
 
         table {
@@ -276,6 +280,71 @@
             font-style: italic;
             color: var(--secondary-color);
         }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            transform: translateY(-50px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        /* Animation Styles */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.8s ease-out forwards; }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.5; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+            100% { transform: translateY(0px) rotate(360deg); opacity: 0.5; }
+        }
+        .ember {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+        .animation-delay-1 { animation-delay: 1s; }
+        .animation-delay-2 { animation-delay: 2s; }
+        .animation-delay-3 { animation-delay: 3s; }
 
         /* Print-specific styles */
         @media print {
@@ -305,6 +374,13 @@
 </head>
 <body>
     <div class="container">
+        <!-- Floating Embers Background -->
+        <div class="ember w-3 h-3 bg-teal-400/50 blur-sm left-[10%] top-[20%] animation-delay-1"></div>
+        <div class="ember w-4 h-4 bg-amber-500/50 blur-sm left-[80%] top-[10%]"></div>
+        <div class="ember w-2 h-2 bg-teal-300/50 blur-sm left-[90%] top-[60%] animation-delay-2"></div>
+        <div class="ember w-3 h-3 bg-amber-400/50 blur left-[5%] top-[70%] animation-delay-3"></div>
+        <div class="ember w-2 h-2 bg-teal-500/50 blur-sm left-[45%] top-[90%]"></div>
+
         <header class="no-print">
             <div>
                 <div class="app-title">Z-BridgePay Document Architect</div>
@@ -320,138 +396,197 @@
             <div class="tab" data-tab="database">Employee Database</div>
         </div>
         
-        <!-- Payroll Register Tab -->
-        <div class="tab-content active" id="payroll-tab">
-            <div class="card">
-                <h2 class="section-title">Weekly Payroll Register</h2>
-                <div class="controls-row no-print">
-                    <div class="control-group">
-                        <label for="payrollFile">Upload Weekly Timesheet (.csv, .xlsx)</label>
-                        <input type="file" id="payrollFile" accept=".csv,.xlsx">
-                        <div id="file-name"></div>
+        <!-- Tab Content Wrapper -->
+        <div class="animate-fadeIn">
+            <!-- Payroll Register Tab -->
+            <div class="tab-content active" id="payroll-tab">
+                <div class="card">
+                    <h2 class="section-title">Weekly Payroll Register</h2>
+                    <div class="controls-row no-print">
+                        <div class="control-group">
+                            <label for="payrollFile">Upload Weekly Timesheet (.csv, .xlsx)</label>
+                            <input type="file" id="payrollFile" accept=".csv,.xlsx">
+                            <div id="file-name"></div>
+                        </div>
+                         <div class="control-group">
+                            <label for="exchangeRate">USD to PHP Exchange Rate</label>
+                            <input type="number" id="exchangeRate" value="58.75" step="0.01">
+                        </div>
+                        <div class="control-group">
+                            <label for="payPeriodStart">Pay Period Start</label>
+                            <input type="date" id="payPeriodStart">
+                        </div>
+                        <div class="control-group">
+                            <label for="payPeriodEnd">Pay Period End</label>
+                            <input type="date" id="payPeriodEnd">
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" id="processPayrollBtn">Process Payroll</button>
+                        </div>
+                         <div class="control-group">
+                            <button class="btn" id="downloadTemplateBtn" style="background-color: var(--accent-color); color: var(--primary-color);">Download Template</button>
+                        </div>
+                         <div class="control-group">
+                            <button class="btn" id="printReportBtn" style="background-color: var(--accent-color); color: var(--primary-color);">Print Report</button>
+                        </div>
                     </div>
-                     <div class="control-group">
-                        <label for="exchangeRate">USD to PHP Exchange Rate</label>
-                        <input type="number" id="exchangeRate" value="58.75" step="0.01">
+                    <div class="table-container">
+                        <table id="payroll-register-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Full Name</th>
+                                    <th>Rate ($)</th>
+                                    <th>Hours</th>
+                                    <th>PTO Hours</th>
+                                    <th>Gross Hourly Pay ($)</th>
+                                    <th>Gross PTO ($)</th>
+                                    <th>Commissions ($)</th>
+                                    <th>Bonus ($)</th>
+                                    <th>Health Card ($)</th>
+                                    <th>SSS Reimb. ($)</th>
+                                    <th>Pag-IBIG Reimb. ($)</th>
+                                    <th>PhilHealth Reimb. ($)</th>
+                                    <th>Cash Adv/Loans ($)</th>
+                                    <th>Adjustments ($)</th>
+                                    <th>Total Gross Pay ($)</th>
+                                    <th>Take Home Pay ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot></tfoot>
+                        </table>
                     </div>
-                    <div class="control-group">
-                        <label for="payPeriodStart">Pay Period Start</label>
-                        <input type="date" id="payPeriodStart">
-                    </div>
-                    <div class="control-group">
-                        <label for="payPeriodEnd">Pay Period End</label>
-                        <input type="date" id="payPeriodEnd">
-                    </div>
-                    <div class="control-group">
-                        <button class="btn" id="processPayrollBtn">Process Payroll</button>
-                    </div>
-                     <div class="control-group">
-                        <button class="btn" id="printReportBtn" style="background-color: var(--accent-color); color: var(--primary-color);">Print Report</button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table id="payroll-register-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Full Name</th>
-                                <th>Rate ($)</th>
-                                <th>Hours</th>
-                                <th>PTO Hours</th>
-                                <th>Gross Hourly Pay ($)</th>
-                                <th>Gross PTO ($)</th>
-                                <th>Commissions ($)</th>
-                                <th>Bonus ($)</th>
-                                <th>Health Card ($)</th>
-                                <th>SSS Reimb. ($)</th>
-                                <th>Pag-IBIG Reimb. ($)</th>
-                                <th>PhilHealth Reimb. ($)</th>
-                                <th>Cash Adv/Loans ($)</th>
-                                <th>Adjustments ($)</th>
-                                <th>Total Gross Pay ($)</th>
-                                <th>Take Home Pay ($)</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                        <tfoot></tfoot>
-                    </table>
                 </div>
             </div>
-        </div>
 
-        <!-- Payslip Generator Tab -->
-        <div class="tab-content" id="payslips-tab">
-            <div class="card">
-                <h2 class="section-title">Payslip Generator</h2>
-                 <div class="controls-row no-print">
-                    <div class="control-group">
-                        <label for="payslipEmployeeSelect">Select Employee</label>
-                        <select id="payslipEmployeeSelect">
-                            <option value="">-- Select Employee --</option>
-                        </select>
+            <!-- Payslip Generator Tab -->
+            <div class="tab-content" id="payslips-tab">
+                <div class="card">
+                    <h2 class="section-title">Payslip Generator</h2>
+                     <div class="controls-row no-print">
+                        <div class="control-group">
+                            <label for="payslipEmployeeSelect">Select Employee</label>
+                            <select id="payslipEmployeeSelect">
+                                <option value="">-- Select Employee --</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" id="generatePayslipBtn">Generate Payslip</button>
+                        </div>
+                         <div class="control-group">
+                            <button class="btn" id="printPayslipBtn" style="background-color: var(--accent-color); color: var(--primary-color);">Print Payslip</button>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <button class="btn" id="generatePayslipBtn">Generate Payslip</button>
-                    </div>
-                     <div class="control-group">
-                        <button class="btn" id="printPayslipBtn" style="background-color: var(--accent-color); color: var(--primary-color);">Print Payslip</button>
-                    </div>
+                    <div id="payslip-view"></div>
                 </div>
-                <div id="payslip-view"></div>
             </div>
-        </div>
 
-        <!-- Certificate Generator Tab -->
-        <div class="tab-content" id="certificates-tab">
-            <div class="card">
-                 <h2 class="section-title">Certificate Generator</h2>
-                 <div class="controls-row no-print">
-                    <div class="control-group">
-                        <label for="certEmployeeSelect">Select Employee</label>
-                        <select id="certEmployeeSelect">
-                             <option value="">-- Select Employee --</option>
-                        </select>
+            <!-- Certificate Generator Tab -->
+            <div class="tab-content" id="certificates-tab">
+                <div class="card">
+                     <h2 class="section-title">Certificate Generator</h2>
+                     <div class="controls-row no-print">
+                        <div class="control-group">
+                            <label for="certEmployeeSelect">Select Employee</label>
+                            <select id="certEmployeeSelect">
+                                 <option value="">-- Select Employee --</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="certDate">Date Issued</label>
+                            <input type="date" id="certDate">
+                        </div>
+                        <div class="control-group">
+                            <button class="btn" id="generateCertBtn">Generate Certificate</button>
+                        </div>
+                         <div class="control-group">
+                            <button class="btn" id="printCertBtn" style="background-color: var(--accent-color); color: var(--primary-color);">Print Certificate</button>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label for="certDate">Date Issued</label>
-                        <input type="date" id="certDate">
-                    </div>
-                    <div class="control-group">
-                        <button class="btn" id="generateCertBtn">Generate Certificate</button>
-                    </div>
-                     <div class="control-group">
-                        <button class="btn" id="printCertBtn" style="background-color: var(--accent-color); color: var(--primary-color);">Print Certificate</button>
+                    <div id="certificate-view"></div>
+                </div>
+            </div>
+            
+            <!-- Employee Database Tab -->
+            <div class="tab-content" id="database-tab">
+                <div class="card">
+                    <h2 class="section-title">Employee Database</h2>
+                     <div class="table-container">
+                        <table id="employee-database-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Full Name</th>
+                                    <th>Designation</th>
+                                    <th>Assignment</th>
+                                    <th>Status</th>
+                                    <th>Hourly Rate ($)</th>
+                                    <th>Work Email</th>
+                                    <th>Date of Joining</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
-                <div id="certificate-view"></div>
             </div>
         </div>
         
-        <!-- Employee Database Tab -->
-        <div class="tab-content" id="database-tab">
-            <div class="card">
-                <h2 class="section-title">Employee Database</h2>
-                 <div class="table-container">
-                    <table id="employee-database-table">
-                        <thead>
-                            <tr>
-                                <th>Employee ID</th>
-                                <th>Full Name</th>
-                                <th>Designation</th>
-                                <th>Assignment</th>
-                                <th>Status</th>
-                                <th>Hourly Rate ($)</th>
-                                <th>Work Email</th>
-                                <th>Date of Joining</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <!-- Footer -->
+        <footer class="main-footer no-print" style="background: var(--primary-color); color: var(--white); padding: 40px 30px; margin-top: 30px; text-align: center;">
+             <button id="openModalBtn" class="btn" style="max-width: 250px; margin: 0 auto 30px auto; background-color: var(--accent-color); color: var(--primary-color);">Contact Us</button>
+             <div class="footer-bottom" style="border-top: 1px solid var(--secondary-color); padding-top: 20px;">
+                <p>A Project coded by <strong>Z-Insight</strong> — All Rights Reserved</p>
+                <p>Custom Project Apps: <a href="mailto:z-bridges@z-insightxy.com" style="color: var(--accent-color);">z-bridges@z-insightxy.com</a></p>
             </div>
-        </div>
+        </footer>
 
     </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal-overlay no-print" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <button id="closeModalBtn" class="modal-close-btn" aria-label="Close contact form">&times;</button>
+            <h2 class="section-title">Contact Us</h2>
+            <form id="contact-form">
+                <div class="control-group">
+                    <label for="contactName">Name</label>
+                    <input type="text" id="contactName" placeholder="e.g. John Doe" required>
+                </div>
+                <div class="control-group">
+                    <label for="contactWhatsapp">WhatsApp Number</label>
+                    <input type="tel" id="contactWhatsapp" placeholder="+63 912 345 6789">
+                </div>
+                <div class="control-group">
+                    <label for="contactEmail">Email</label>
+                    <input type="email" id="contactEmail" placeholder="name@example.com" required>
+                </div>
+                <div class="control-group">
+                    <label for="contactConcern">Concern</label>
+                    <select id="contactConcern">
+                        <option>Custom App Creation</option>
+                        <option>General Inquiry</option>
+                        <option>Report an Error</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="control-group" style="grid-column: 1 / -1;">
+                    <label for="contactMessage">Message</label>
+                    <textarea id="contactMessage" rows="4" placeholder="How can we help you?" required></textarea>
+                </div>
+                <div class="control-group" style="grid-column: 1 / -1;">
+                    <button type="submit" class="btn" style="background-color: var(--accent-color); color: var(--primary-color);">
+                        Send Message
+                    </button>
+                </div>
+            </form>
+            <div id="form-message" style="display: none; padding: 10px; margin-top: 15px; border-radius: 8px; text-align: center; font-weight: 600;">
+                <!-- Message inserted via JavaScript -->
+            </div>
+        </div>
+    </div>
+
 
     <script>
     // --- EMBEDDED KNOWLEDGE BASE & DATA ---
@@ -474,6 +609,7 @@
         const tabContents = document.querySelectorAll('.tab-content');
         const payrollFileInput = document.getElementById('payrollFile');
         const processPayrollBtn = document.getElementById('processPayrollBtn');
+        const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
         const payrollTableBody = document.querySelector('#payroll-register-table tbody');
         const employeeDbTableBody = document.querySelector('#employee-database-table tbody');
         const payslipEmployeeSelect = document.getElementById('payslipEmployeeSelect');
@@ -486,6 +622,10 @@
         const printPayslipBtn = document.getElementById('printPayslipBtn');
         const printCertBtn = document.getElementById('printCertBtn');
         const fileNameDisplay = document.getElementById('file-name');
+        const contactForm = document.getElementById('contact-form');
+        const contactModal = document.getElementById('contactModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
         
         // Set default dates for the pay period to the current week
         const today = new Date();
@@ -503,9 +643,15 @@
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 tabs.forEach(t => t.classList.remove('active'));
-                tabContents.forEach(tc => tc.classList.remove('active'));
+                tabContents.forEach(tc => {
+                    tc.classList.remove('active');
+                    tc.classList.remove('animate-fadeIn');
+                });
                 tab.classList.add('active');
-                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                const activeTabContent = document.getElementById(`${tab.dataset.tab}-tab`);
+                activeTabContent.classList.add('active');
+                void activeTabContent.offsetWidth; // Trigger reflow for animation
+                activeTabContent.classList.add('animate-fadeIn');
             });
         });
         
@@ -883,6 +1029,39 @@
             });
         }
         
+        // --- TEMPLATE DOWNLOAD ---
+        downloadTemplateBtn.addEventListener('click', () => {
+            const headers = [
+                "Employee", "Weekly Hours Rendered", "Paid TimeOff Hours", "Commissions", 
+                "Bonus", "Health Card Credit", "SSS", "Pag Ibig", "PhilHealth", 
+                "Cash Adv/Loans", "Compliance Adjustment"
+            ];
+            
+            const sampleRow = [
+                "Zaphyr Zur Pomicpic", "40", "0", "50", "0", "0", "10", "5", "5", "0", "0"
+            ];
+            
+            const csvData = [
+                headers,
+                sampleRow
+            ];
+
+            // Use \r\n for better compatibility with spreadsheet programs
+            let csvContent = csvData.map(e => e.join(",")).join("\r\n");
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "payroll_template.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+
         // --- PRINTING & PDF EXPORT ---
 
         // Prints the main payroll register view
@@ -920,6 +1099,32 @@
                     pdf.save(`${certEmployeeSelect.options[certEmployeeSelect.selectedIndex].text}_certificate.pdf`);
                 });
             } else { alert('Please generate a certificate first.'); }
+        });
+        
+        // --- CONTACT MODAL ---
+        openModalBtn.addEventListener('click', () => contactModal.classList.add('active'));
+        closeModalBtn.addEventListener('click', () => contactModal.classList.remove('active'));
+        contactModal.addEventListener('click', (e) => {
+            if (e.target === contactModal) {
+                contactModal.classList.remove('active');
+            }
+        });
+
+        // --- CONTACT FORM ---
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formMessage = document.getElementById('form-message');
+            formMessage.textContent = 'Thank you for your message! We will get back to you shortly.';
+            formMessage.style.backgroundColor = 'var(--secondary-color)';
+            formMessage.style.color = 'var(--white)';
+            formMessage.style.display = 'block';
+            
+            contactForm.reset();
+            
+            setTimeout(() => {
+                formMessage.style.display = 'none';
+                contactModal.classList.remove('active');
+            }, 3000);
         });
 
         // Initial population of the database tab on page load
