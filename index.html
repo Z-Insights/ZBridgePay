@@ -13,9 +13,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #002a24;
-            --secondary-color: #004d40;
-            --accent-color: #D4AF37;
+            --primary-color: #004D40; /* Dark Teal */
+            --secondary-color: #00796B; /* Medium Teal */
+            --accent-color: #b28a3d; /* Metallic Gold/Bronze */
             --text-color: #333333;
             --bg-color: #f8f9fa;
             --light-gray: #e0e0e0;
@@ -42,22 +42,17 @@
         }
 
         header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(to right, #00796B, #000000);
             color: var(--white);
-            padding: 25px 40px;
+            padding: 20px 40px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
         .logo {
-            height: 70px;
+            height: 140px;
+            border-radius: 8px;
         }
 
         .app-title {
@@ -311,13 +306,11 @@
 <body>
     <div class="container">
         <header class="no-print">
-            <div class="logo-container">
-                <img src="https://placehold.co/200x70/002a24/ffffff?text=Z-BridgePay" alt="Z-BridgePay Logo" class="logo">
-                <div>
-                    <div class="app-title">Z-BridgePay Document Architect</div>
-                    <div class="app-subtitle">Payroll Register • Payslip Generator • Certificate Generator</div>
-                </div>
+            <div>
+                <div class="app-title">Z-BridgePay Document Architect</div>
+                <div class="app-subtitle">Payroll Register • Payslip Generator • Certificate Generator</div>
             </div>
+            <img src="https://github.com/Z-Insights/ZBridgePay/blob/main/Z-BridgePay.jpeg?raw=true" alt="Z-BridgePay Logo" class="logo">
         </header>
         
         <div class="nav-tabs no-print">
@@ -737,7 +730,7 @@
                 <div class="payslip" id="payslip-to-print">
                     <div class="payslip-header">
                         <div class="logo-area">
-                            <img src="https://placehold.co/200x70/002a24/ffffff?text=Z-BridgePay" alt="Z-BridgePay Logo" style="max-height: 70px;">
+                            <img src="https://github.com/Z-Insights/ZBridgePay/blob/main/Z-BridgePay.jpeg?raw=true" alt="Z-BridgePay Logo" style="max-height: 70px; border-radius: 8px;">
                         </div>
                         <div class="document-title-area">
                             <h1>Weekly Payslip</h1>
@@ -844,7 +837,7 @@
                  <div class="certificate" id="certificate-to-print">
                     <div class="certificate-header">
                         <div class="logo-area">
-                            <img src="https://placehold.co/200x70/002a24/ffffff?text=Z-BridgePay" alt="Z-BridgePay Logo" style="max-height: 70px;">
+                            <img src="https://github.com/Z-Insights/ZBridgePay/blob/main/Z-BridgePay.jpeg?raw=true" alt="Z-BridgePay Logo" style="max-height: 70px; border-radius: 8px;">
                         </div>
                         <div class="document-title-area">
                             <h1>Certificate of Employment & Compensation</h1>
