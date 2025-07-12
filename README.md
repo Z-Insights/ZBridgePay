@@ -1,2 +1,2 @@
-# ZBridgePay
-ZBridgePay
+# Z-Bridges AI
+Z-Bridges AI
